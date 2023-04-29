@@ -2,7 +2,7 @@ using Ordering.Application.Interfaces;
 using Ordering.Domain;
 using Ordering.Infrastructure.Interfaces;
 
-namespace Ordering.Application;
+namespace Ordering.Application.Services;
 
 public class OrderService : IOrderService
 {
@@ -20,7 +20,7 @@ public class OrderService : IOrderService
         {
             return Result<Order>.Success(order);
         }
-        
+
         var message = $"Заказ id={id} не найден";
         return Result<Order>.Failure(message);
     }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ordering.Application.Interfaces;
+using Ordering.Application.Services;
 
 namespace Ordering.Application.Extensions;
 
