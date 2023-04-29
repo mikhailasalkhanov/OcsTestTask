@@ -1,4 +1,5 @@
 using Ordering.Api.Mappings;
+using Ordering.Api.Middleware;
 using Ordering.Application.Extensions;
 using Ordering.Infrastructure.Extensions;
 
@@ -15,6 +16,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(OrderProfile));
 
 var app = builder.Build();
+
+app.UseMiddleware<UnhandledExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
