@@ -9,7 +9,7 @@ public class OrderCreationDto
     [NotNull]
     public Guid? Id { get; set; }
     
-    [Required(ErrorMessage = "Can't create order without lines")]
+    [Required]
     [MinLength(1, ErrorMessage = "Can't create order without lines")]
     public List<OrderLineDto> Lines { get; set; }
 }
