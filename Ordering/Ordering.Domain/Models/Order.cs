@@ -22,7 +22,12 @@ public class Order
     }
     public bool CanBeDeleted()
     {
-        return !IsDeleted && Status is not 
+        if (IsDeleted)
+        {
+            return false;
+        }
+        
+        return Status is not 
               (OrderStatus.Completed 
             or OrderStatus.Delivered
             or OrderStatus.SentForDelivery);
@@ -30,14 +35,19 @@ public class Order
 
     public bool CanBeEdited()
     {
-        return !IsDeleted && Status is not
+        if (IsDeleted)
+        {
+            return false;
+        }
+        
+        return Status is not
               (OrderStatus.Completed
             or OrderStatus.Delivered
             or OrderStatus.SentForDelivery
             or OrderStatus.Paid);
     }
 
-    public bool TryEditFrom(Order order)
+    public bool TryUpdateFrom(Order order)
     {
         if (!CanBeEdited())
         {
@@ -45,21 +55,27 @@ public class Order
         }
 
         Status = order.Status;
-        MapLinesIds(order);
-        Lines = order.Lines;
-        
+        UpdateLinesFrom(order.Lines);
+
         return true;
     }
 
-    private void MapLinesIds(Order order)
+    private void UpdateLinesFrom(List<OrderLine> lines)
     {
-        foreach (var line in order.Lines)
+        foreach (var line in lines)
         {
-            var existingLine = Lines.FirstOrDefault(l => l.ProductId == line.ProductId);
-            if (existingLine is not null)
+            var matchingLine = FindMatchingLine(line);
+            if (matchingLine is not null)
             {
-                line.Id = existingLine.Id;
+                line.Id = matchingLine.Id;
             }
         }
+        
+        Lines = lines;
+    }
+    
+    private OrderLine? FindMatchingLine(OrderLine line)
+    {
+        return Lines.FirstOrDefault(l => l.ProductId == line.ProductId);
     }
 }
