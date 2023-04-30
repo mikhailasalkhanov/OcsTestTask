@@ -13,7 +13,7 @@ public class OrderUpdationDto
     [EnumDataType(typeof(OrderStatus))]
     public string Status { get; set; }
 
-    [Required(ErrorMessage = "Can't to update order without lines")]
-    [MinLength(1, ErrorMessage = "Qty must be greater than 0")]
+    [Required]
+    [MinLength(1, ErrorMessage = "Can't to update order without lines")]
     public List<OrderLineDto> Lines { get; set; }
 }

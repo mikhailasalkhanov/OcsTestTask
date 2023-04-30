@@ -12,6 +12,6 @@ public class OrderLineDto
     public Guid? ProductId { get; set; }
     
     [Required]
-    [Range(1, int.MaxValue, ErrorMessage = "Feild qty must be greater than 0")]
+    [Range(1, int.MaxValue, ErrorMessage = "Field qty must be greater than 0")]
     public int Qty { get; set; }
 }
