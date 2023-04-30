@@ -1,13 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ordering.Api.Dto;
 
 public class OrderCreationDto
 {
     [Required]
-    public Guid Id { get; set; }
+    [NotNull]
+    public Guid? Id { get; set; }
     
-    [Required]
-    [MinLength(1)]
+    [Required(ErrorMessage = "Can't create order without lines")]
+    [MinLength(1, ErrorMessage = "Can't create order without lines")]
     public List<OrderLineDto> Lines { get; set; }
 }

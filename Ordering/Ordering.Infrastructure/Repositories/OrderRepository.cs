@@ -1,11 +1,11 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Domain;
-using Ordering.Infrastructure.Interfaces;
+using Ordering.Domain.Interfaces;
+using Ordering.Domain.Models;
 
 namespace Ordering.Infrastructure.Repositories;
 
-public class OrderRepository : IRepository<Order>
+public class OrderRepository : IOrderRepository
 {
     private readonly ApplicationContext _context;
 
@@ -17,7 +17,6 @@ public class OrderRepository : IRepository<Order>
     public async Task<Order?> GetByIdAsync(Guid id)
     {
         return await _context.Orders
-            //.AsNoTracking()
             .Include(o => o.Lines)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
@@ -43,13 +42,5 @@ public class OrderRepository : IRepository<Order>
         await _context.SaveChangesAsync();
         
         return updated.Entity;
-    }
-
-    public async Task<IEnumerable<Order>> GetAsync(Expression<Func<Order, bool>> filter)
-    {
-        return await _context.Set<Order>()
-            .Where(filter)
-            .AsNoTracking()
-            .ToListAsync();
     }
 }

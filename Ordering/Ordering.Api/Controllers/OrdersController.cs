@@ -1,13 +1,15 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.Api.Dto;
-using Ordering.Application.Interfaces;
+using Ordering.Application.Exceptions;
 using Ordering.Domain;
+using Ordering.Domain.Interfaces;
+using Ordering.Domain.Models;
 
 namespace Ordering.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("[controller]")]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _service;
@@ -22,62 +24,63 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateAsync([FromBody] OrderCreationDto dto)
     {
-        var result = await _service.CreateAsync(_mapper.Map<Order>(dto));
-
-        if (!result.IsSuccess)
+        var created = await _service.CreateAsync(_mapper.Map<Order>(dto));
+        if (created is null)
         {
-            return StatusCode(403, new Error(result.ErrorMessage!));
+            return StatusCode(403, new ErrorDto("Failed to create order"));
         }
         
-        var responseDto = _mapper.Map<OrderResponseDto>(result.Value);
-        return Ok(responseDto);
+        return Ok(_mapper.Map<OrderResponseDto>(created));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
-        var result = await _service.GetByIdAsync(id);
-        if (result.IsSuccess)
+        var order = await _service.GetByIdAsync(id);
+        if (order is null)
         {
-            return Ok(_mapper.Map<OrderResponseDto>(result.Value));
+            return NotFound(new ErrorDto("Order is not found"));
         }
-
-        return NotFound(new Error(result.ErrorMessage!));
+        
+        return Ok(_mapper.Map<OrderResponseDto>(order));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateAsync(Guid id, [FromBody]OrderUpdationDto dto)
     {
-        dto.Id = id;
-        var result = await _service.UpdateAsync(_mapper.Map<Order>(dto));
-        if (result.IsSuccess)
+        try
         {
-            var responseDto = _mapper.Map<OrderResponseDto>(result.Value);
-            return Ok(responseDto);
+            dto.Id = id;
+            var updated = await _service.UpdateAsync(_mapper.Map<Order>(dto));
+            if (updated is null)
+            {
+                return NotFound(new ErrorDto("Order is not found"));
+            }
+            
+            return Ok(_mapper.Map<OrderResponseDto>(updated));
         }
-
-        if (result.Value is null)
+        catch (OrderException e)
         {
-            return NotFound(new Error(result.ErrorMessage!));
+            return StatusCode(403, new ErrorDto(e.Message));
         }
-        
-        return StatusCode(403, new Error(result.ErrorMessage!));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var result = await _service.DeleteAsync(id);
-        if (result.IsSuccess)
+        try
         {
+            var deleted = await _service.DeleteAsync(id);
+            if (deleted is null)
+            {
+                return NotFound(new ErrorDto("Order is not found"));
+            }
+            
             return Ok();
         }
-
-        if (result.Value is null)
+        catch (OrderException e)
         {
-            return NotFound(new Error(result.ErrorMessage!));
+            return StatusCode(403, new ErrorDto(e.Message));
         }
-
-        return StatusCode(403, new Error(result.ErrorMessage!));
     }
 }
