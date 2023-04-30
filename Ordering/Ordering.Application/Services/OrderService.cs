@@ -1,80 +1,70 @@
-using Ordering.Application.Interfaces;
-using Ordering.Domain;
-using Ordering.Infrastructure.Interfaces;
+using Ordering.Application.Exceptions;
+using Ordering.Domain.Interfaces;
+using Ordering.Domain.Models;
 
 namespace Ordering.Application.Services;
 
 public class OrderService : IOrderService
 {
-    private readonly IRepository<Order> _orderRepository;
+    private readonly IOrderRepository _orderOrderRepository;
 
-    public OrderService(IRepository<Order> orderRepository)
+    public OrderService(IOrderRepository orderOrderRepository)
     {
-        _orderRepository = orderRepository;
+        _orderOrderRepository = orderOrderRepository;
     }
 
-    public async Task<Result<Order>> GetByIdAsync(Guid id)
+    public async Task<Order?> GetByIdAsync(Guid id)
     {
-        var order = await _orderRepository.GetByIdAsync(id);
+        var order = await _orderOrderRepository.GetByIdAsync(id);
         if (order is not null && !order.IsDeleted)
         {
-            return Result<Order>.Success(order);
+            return order;
         }
-
-        var message = $"Заказ id={id} не найден";
-        return Result<Order>.Failure(message);
+        
+        return null;
     }
 
-    public async Task<Result<Order>> CreateAsync(Order order)
+    public async Task<Order?> CreateAsync(Order order)
     {
-        var sameOrderIsExist = await _orderRepository.GetByIdAsync(order.Id) is not null;
+        var sameOrderIsExist = await _orderOrderRepository.GetByIdAsync(order.Id) is not null;
         if (sameOrderIsExist)
         {
-            return Result<Order>.Failure($"Невозможно создать заказ с id={order.Id}");
+            return null;
         }
 
-        var created = await _orderRepository.CreateAsync(order);
-        return Result<Order>.Success(created);
+        return await _orderOrderRepository.CreateAsync(order);
     }
     
-    public async Task<Result<Order>> UpdateAsync(Order order)
+    public async Task<Order?> UpdateAsync(Order orderUpdation)
     {
-        var searchResult = await GetByIdAsync(order.Id);
-        if (!searchResult.IsSuccess)
+        var orderToUpdate = await GetByIdAsync(orderUpdation.Id);
+        if (orderToUpdate is null)
         {
-            return searchResult;
+            return null;
         }
 
-        var orderToUpdate = searchResult.Value!;
-        if (orderToUpdate.TryEditFrom(order))
+        if (!orderToUpdate.TryEditFrom(orderUpdation))
         {
-            var updated = await _orderRepository.UpdateAsync(orderToUpdate);
-            return Result<Order>.Success(updated);
+            throw new OrderException($"Order with status {orderToUpdate.Status} can't be edited");
         }
-        
-        var result = Result<Order>.Failure($"Заказ со статусом {order.Status} не может быть изменен");
-        result.Value = order;
-        return result;
+
+        return await _orderOrderRepository.UpdateAsync(orderToUpdate);
     }
 
-    public async Task<Result<Order>> DeleteAsync(Guid id)
+    public async Task<Order?> DeleteAsync(Guid id)
     {
-        var searchResult = await GetByIdAsync(id);
-        if (!searchResult.IsSuccess)
+        var orderToDelete = await GetByIdAsync(id);
+        if (orderToDelete is null)
         {
-            return searchResult;
+            return null;
         }
 
-        var orderToDelete = searchResult.Value!;
-        if (orderToDelete.CanBeDeleted())
+        if (!orderToDelete.CanBeDeleted())
         {
-            orderToDelete.IsDeleted = true;
-            var deleted = await _orderRepository.UpdateAsync(orderToDelete);
-            return Result<Order>.Success(deleted);
+            throw new OrderException($"Order with status {orderToDelete.Status} can't be deleted");
         }
-        
-        var result = Result<Order>.Failure($"Заказ со статусом {orderToDelete.Status} не может быть удален");
-        result.Value = orderToDelete;
-        return result;
+
+        orderToDelete.IsDeleted = true;
+        return await _orderOrderRepository.UpdateAsync(orderToDelete);
     }
 }

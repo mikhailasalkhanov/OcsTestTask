@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ordering.Domain;
-using Ordering.Infrastructure.Interfaces;
+using Ordering.Domain.Interfaces;
 using Ordering.Infrastructure.Repositories;
 
 namespace Ordering.Infrastructure.Extensions;
@@ -14,7 +13,7 @@ public static class InfrastructureServiceExtension
     {
         services.AddDbContext<ApplicationContext>(options => 
             options.UseNpgsql(configuration.GetConnectionString("OrderingConnectionString")));
-        services.AddScoped<IRepository<Order>, OrderRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         return services;
     }

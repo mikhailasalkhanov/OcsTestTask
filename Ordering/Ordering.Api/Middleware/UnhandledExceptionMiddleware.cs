@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Ordering.Api.Dto;
 
 namespace Ordering.Api.Middleware;
 
@@ -30,18 +31,14 @@ public class UnhandledExceptionMiddleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var respone = _env.IsDevelopment()
-                ? new
-                {
-                    StatusCode = context.Response.StatusCode.ToString(), Message = e.Message, Details = e.StackTrace
-                }
-                : new
-                {
-                    StatusCode = context.Response.StatusCode.ToString(), Message = "Internal server error", Details = ""
-                };
-
+            if (_env.IsDevelopment())
+            {
+                throw;
+            }
+            
+            var response = new ErrorDto("Internal server error");
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var json = JsonSerializer.Serialize(respone, options);
+            var json = JsonSerializer.Serialize(response, options);
             await context.Response.WriteAsync(json);
         }
     }

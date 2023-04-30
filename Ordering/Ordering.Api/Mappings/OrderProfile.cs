@@ -1,6 +1,6 @@
 using AutoMapper;
 using Ordering.Api.Dto;
-using Ordering.Domain;
+using Ordering.Domain.Models;
 
 namespace Ordering.Api.Mappings;
 
@@ -9,10 +9,12 @@ public class OrderProfile : Profile
     public OrderProfile()
     {
         CreateMap<OrderCreationDto, Order>();
+        
         CreateMap<OrderLineDto, OrderLine>()
             .ForMember(dest => dest.Quantity, 
                 opt => opt.MapFrom(src => src.Qty))
             .ReverseMap();
+        
         CreateMap<OrderUpdationDto, Order>().AfterMap((dto, order) =>
         {
             foreach (var line in order.Lines!)
@@ -20,7 +22,8 @@ public class OrderProfile : Profile
                 line.OrderId = order.Id;
             }
         });
-            CreateMap<Order, OrderResponseDto>()
+        
+        CreateMap<Order, OrderResponseDto>()
             .ForMember(dest => dest.Created, 
                 opt => opt.MapFrom(src =>
                     src.CreatedAt.ToString("yyyy-mm-dd hh:mm.ss")));
