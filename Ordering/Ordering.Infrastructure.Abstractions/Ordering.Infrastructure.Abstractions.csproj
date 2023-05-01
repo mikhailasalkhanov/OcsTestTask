@@ -7,13 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Ordering.Application.Abstraction\Ordering.Application.Abstraction.csproj" />
       <ProjectReference Include="..\Ordering.Domain\Ordering.Domain.csproj" />
-      <ProjectReference Include="..\Ordering.Infrastructure.Abstractions\Ordering.Infrastructure.Abstractions.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="12.0.1" />
     </ItemGroup>
 
 </Project>

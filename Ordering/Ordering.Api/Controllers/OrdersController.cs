@@ -1,9 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Ordering.Abstraction.Exceptions;
+using Ordering.Abstraction.Services;
 using Ordering.Api.Dto;
-using Ordering.Application.Exceptions;
-using Ordering.Domain;
-using Ordering.Domain.Interfaces;
 using Ordering.Domain.Models;
 
 namespace Ordering.Api.Controllers;
@@ -27,9 +26,9 @@ public class OrdersController : ControllerBase
         var created = await _service.CreateAsync(_mapper.Map<Order>(dto));
         if (created is null)
         {
-            return StatusCode(403, new ErrorDto("Failed to create order"));
+            return Conflict(new ErrorDto("Failed to create order"));
         }
-        
+            
         return Ok(_mapper.Map<OrderResponseDto>(created));
     }
 
@@ -56,12 +55,12 @@ public class OrdersController : ControllerBase
             {
                 return NotFound(new ErrorDto("Order is not found"));
             }
-            
+
             return Ok(_mapper.Map<OrderResponseDto>(updated));
         }
-        catch (OrderException e)
+        catch (OrderCannotBeModifiedException e)
         {
-            return StatusCode(403, new ErrorDto(e.Message));
+            return Conflict(new ErrorDto(e.Message));
         }
     }
 
@@ -78,9 +77,9 @@ public class OrdersController : ControllerBase
             
             return Ok();
         }
-        catch (OrderException e)
+        catch (OrderCannotBeModifiedException e)
         {
-            return StatusCode(403, new ErrorDto(e.Message));
+            return Conflict(new ErrorDto(e.Message));
         }
     }
 }

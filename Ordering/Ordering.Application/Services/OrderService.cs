@@ -1,6 +1,7 @@
-using Ordering.Application.Exceptions;
-using Ordering.Domain.Interfaces;
+using Ordering.Abstraction.Exceptions;
+using Ordering.Abstraction.Services;
 using Ordering.Domain.Models;
+using Ordering.Infrastructure.Abstractions.Repositories;
 
 namespace Ordering.Application.Services;
 
@@ -45,7 +46,7 @@ public class OrderService : IOrderService
 
         if (!orderToUpdate.TryUpdateFrom(orderUpdation))
         {
-            throw new OrderException($"Order with status {orderToUpdate.Status} can't be edited");
+            throw new OrderCannotBeModifiedException($"Order with status {orderToUpdate.Status} can't be edited");
         }
 
         return await _orderOrderRepository.UpdateAsync(orderToUpdate);
@@ -61,7 +62,7 @@ public class OrderService : IOrderService
 
         if (!orderToDelete.CanBeDeleted())
         {
-            throw new OrderException($"Order with status {orderToDelete.Status} can't be deleted");
+            throw new OrderCannotBeModifiedException($"Order with status {orderToDelete.Status} can't be deleted");
         }
 
         orderToDelete.IsDeleted = true;

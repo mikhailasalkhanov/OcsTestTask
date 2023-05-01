@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ordering.Domain.Interfaces;
+using Ordering.Infrastructure.Abstractions.Repositories;
 using Ordering.Infrastructure.Repositories;
 
 namespace Ordering.Infrastructure.Extensions;

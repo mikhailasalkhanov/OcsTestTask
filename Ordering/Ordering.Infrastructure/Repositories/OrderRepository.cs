@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Ordering.Domain;
-using Ordering.Domain.Interfaces;
 using Ordering.Domain.Models;
+using Ordering.Infrastructure.Abstractions.Repositories;
 
 namespace Ordering.Infrastructure.Repositories;
 
