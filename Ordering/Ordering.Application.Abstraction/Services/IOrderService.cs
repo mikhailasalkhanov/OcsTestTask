@@ -1,6 +1,6 @@
 using Ordering.Domain.Models;
 
-namespace Ordering.Domain.Interfaces;
+namespace Ordering.Abstraction.Services;
 
 public interface IOrderService
 {

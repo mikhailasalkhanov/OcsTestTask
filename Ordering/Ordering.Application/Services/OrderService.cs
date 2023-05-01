@@ -1,6 +1,7 @@
-using Ordering.Application.Exceptions;
-using Ordering.Domain.Interfaces;
+using Ordering.Abstraction.Exceptions;
+using Ordering.Abstraction.Services;
 using Ordering.Domain.Models;
+using Ordering.Infrastructure.Abstractions.Repositories;
 
 namespace Ordering.Application.Services;
 
@@ -32,6 +33,11 @@ public class OrderService : IOrderService
             return null;
         }
 
+        if (IsNotAllLinesUnique(order.Lines))
+        {
+            throw new LineIsNotUnique("2 or more lines contain the same ProductIds");
+        }
+
         return await _orderOrderRepository.CreateAsync(order);
     }
     
@@ -43,9 +49,14 @@ public class OrderService : IOrderService
             return null;
         }
 
+        if (IsNotAllLinesUnique(orderUpdation.Lines))
+        {
+            throw new LineIsNotUnique("2 or more lines contain the same ProductIds");
+        }
+        
         if (!orderToUpdate.TryUpdateFrom(orderUpdation))
         {
-            throw new OrderException($"Order with status {orderToUpdate.Status} can't be edited");
+            throw new OrderCannotBeModifiedException($"Order with status {orderToUpdate.Status} can't be edited");
         }
 
         return await _orderOrderRepository.UpdateAsync(orderToUpdate);
@@ -61,10 +72,16 @@ public class OrderService : IOrderService
 
         if (!orderToDelete.CanBeDeleted())
         {
-            throw new OrderException($"Order with status {orderToDelete.Status} can't be deleted");
+            throw new OrderCannotBeModifiedException($"Order with status {orderToDelete.Status} can't be deleted");
         }
 
         orderToDelete.IsDeleted = true;
         return await _orderOrderRepository.UpdateAsync(orderToDelete);
+    }
+
+    private bool IsNotAllLinesUnique(IEnumerable<OrderLine> lines)
+    {
+        var productIds = new HashSet<Guid>();
+        return lines.Any(l => !productIds.Add(l.ProductId));
     }
 }

@@ -9,8 +9,8 @@ public class OrderUpdationDto
     [JsonIgnore]
     public Guid Id { get; set; }
 
-    [Required(ErrorMessage = "Order status must be 'New', 'Pending', 'Paid', 'SentForDelivery', 'Delivered', 'Completed'")]
-    [EnumDataType(typeof(OrderStatus))]
+    [Required]
+    [EnumDataType(typeof(OrderStatus), ErrorMessage = "Order status must be 'New', 'Pending', 'Paid', 'SentForDelivery', 'Delivered', 'Completed'")]
     public string Status { get; set; }
 
     [Required]

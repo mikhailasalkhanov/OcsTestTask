@@ -28,13 +28,9 @@ public class UnhandledExceptionMiddleware
         catch (Exception e)
         {
             _logger.LogError(e, "{EMessage}", e.Message);
+            
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            if (_env.IsDevelopment())
-            {
-                throw;
-            }
             
             var response = new ErrorDto("Internal server error");
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

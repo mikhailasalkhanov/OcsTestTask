@@ -26,6 +26,6 @@ public class OrderProfile : Profile
         CreateMap<Order, OrderResponseDto>()
             .ForMember(dest => dest.Created, 
                 opt => opt.MapFrom(src =>
-                    src.CreatedAt.ToString("yyyy-mm-dd hh:mm.ss")));
+                    src.CreatedAt.ToString("yyyy-MM-dd HH:mm.ss")));
     }
 }
