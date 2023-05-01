@@ -43,7 +43,7 @@ public class OrderService : IOrderService
         {
             return null;
         }
-
+        
         if (!orderToUpdate.TryUpdateFrom(orderUpdation))
         {
             throw new OrderCannotBeModifiedException($"Order with status {orderToUpdate.Status} can't be edited");
